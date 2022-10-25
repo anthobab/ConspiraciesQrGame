@@ -1,13 +1,24 @@
-import { Character, Collector } from "./character";
-import Computer from "./computer";
-import Player from "./player";
+import {
+  Characters,
+  Collectors,
+  Assassins,
+  Robbers,
+  Untouchables,
+  Negociators,
+  Duchess,
+  Assassin,
+  Pirate,
+  Witch,
+  Spy,
+} from "./character.js";
+import Computer from "./computer.js";
+import Player from "./player.js";
 
 export class Game {
   constructor(collector, assassin, robber, untouchable, negociator) {
-    this.computer = new Computer();
-    this.player = new Player();
     this.end = false;
     this.winner = null;
+    this.playerNb = 2;
     this.characterList = [
       "collector",
       "assassin",
@@ -15,10 +26,45 @@ export class Game {
       "untouchable",
       "negociator",
     ];
+
     this.log = "The Game begins : \n";
-    this.choices = {};
+    this.choices = [
+      {
+        text: "Income : Take 1 coin from the Treasure.",
+        action: (activePlayer, defenderPlayers, treasure, deck) => {
+          activePlayer.treasure += 1;
+        },
+        state: true,
+      },
+      {
+        text: "Murder : Pay 7 coins to assassinate an opponent.",
+        action: (activePlayer, defenderPlayers, treasure, deck) => {
+          activePlayer.treasure -= 7;
+          defenderPlayers.cardToKill = true;
+        },
+        state: true,
+      },
+    ];
     this.deck = new Deck(collector, assassin, robber, untouchable, negociator);
+
+    // add power of the characters' list
+    // add allowed action helper
+    // add the lying helper
+
     this.init();
+  }
+  init() {
+    // dealer
+    this.player = new Player(
+      "player",
+      this.deck.cardsList.splice(0, 1)[0], // take cards from the deck
+      this.deck.cardsList.splice(1, 1)[0]
+    );
+    this.computer = new Computer(
+      "computer",
+      this.deck.cardsList.splice(0, 1)[0],
+      this.deck.cardsList.splice(0, 1)[0]
+    );
   }
   /* 
   init() {
@@ -118,16 +164,41 @@ export class Game {
 
 export class Deck {
   constructor(collector, assassin, robber, untouchable, negociator) {
+    this.characters = {};
     this.characters.collector = collector;
     this.characters.assassin = assassin;
     this.characters.robber = robber;
     this.characters.untouchable = untouchable;
     this.characters.negociator = negociator;
     this.cardNumber = 3;
+    this.cardsList = [];
+
     this.init();
   }
   init() {
     // add cardNumber cards of each character :
-    this.character.forEach((element) => {});
+    for (const char in this.characters) {
+      for (let i = 0; i < this.cardNumber; i++) {
+        // console.log(this.characters[char]);
+        this.cardsList.push(JSON.parse(JSON.stringify(this.characters[char])));
+        //this.cardsList.push([this.characters[char]].slice(0)[0]);
+      }
+    }
+    this.shuffle();
+  }
+
+  shuffle() {
+    //shuffle the deck : 1 sort / second method Fisher-Yates algorithm
+    // 1
+    // this.shuffledArray = array.sort((a, b) => 0.5 - Math.random());
+    //2
+    // console.log(test.cardsList);
+
+    for (let i = this.cardsList.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = this.cardsList[i];
+      this.cardsList[i] = this.cardsList[j];
+      this.cardsList[j] = temp;
+    }
   }
 }
