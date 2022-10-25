@@ -66,6 +66,12 @@ export class Game {
       this.deck.cardsList.splice(0, 1)[0]
     );
   }
+
+  next(choice, activePlayer, defenderPlayers, treasure, deck) {
+    console.log(choice);
+    this.choices[choice].action(activePlayer, defenderPlayers, treasure, deck);
+  }
+
   /* 
   init() {
 		this.background = new Background(

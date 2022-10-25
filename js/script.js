@@ -19,6 +19,7 @@ const startBtn = document.getElementById("start-button");
 const gameSection = document.getElementById("game");
 const logSection = document.getElementById("log");
 const choicesSection = document.getElementById("choices");
+const nextButton = document.getElementById("nextButton");
 
 // const test = new Deck(
 //   new Duchess(),
@@ -72,5 +73,18 @@ game.choices.forEach((choice) => {
 
   divElement.append(inputElement);
   divElement.append(labelElement);
-  choicesSection.append(divElement);
+  //   choicesSection.append(divElement);
+  nextButton.parentElement.before(divElement);
+});
+
+nextButton.addEventListener("click", (event) => {
+  let indexAction = Number(
+    document.querySelector(".choices-list:checked").getAttribute("value")
+  );
+
+  game.next(indexAction, game.player, game.computer, 0, game.deck);
+  //mise à jour des morts et des
+  //
+  console.log(game.player);
+  console.log(game.computer);
 });

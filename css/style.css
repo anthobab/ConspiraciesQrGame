@@ -12,10 +12,11 @@ body {
 
   background: linear-gradient(
     55deg,
-    rgba(2, 0, 36, 1) 0%,
-    rgba(0, 0, 106, 1) 23%,
-    rgba(5, 35, 61, 1) 100%
+    rgba(2, 0, 36, 0.7) 0%,
+    rgba(0, 0, 106, 0.5) 23%,
+    rgba(5, 35, 61, 0.7) 100%
   );
+  min-height: 100vh;
 }
 header {
   width: 100vw;
@@ -70,10 +71,18 @@ header {
   width: 10vw;
 }
 
+/* Section Log : */
+
 /* Section Choices */
 
+#choices {
+  flex-grow: 1;
+  justify-content: stretch;
+  align-items: stretch;
+}
 #choices * {
   display: flex;
+  justify-content: center;
 }
 .choices-list {
   /* border-radius: 30%;
@@ -87,26 +96,43 @@ header {
 
 .choice-label {
   display: inline-block;
-  background-color: rgb(32, 22, 22);
+  background-color: rgb(122, 48, 48);
   /* padding: 10px 20px; */
   /* font-family: sans-serif, Arial;
   font-size: 16px; */
-  border: 2px solid #c50606;
+  border: 2px solid #b56a6a;
   border-radius: 4px;
+  width: 90%;
 }
 .choice-label:hover {
-  background-color: rgb(23, 255, 23);
+  /* Effect of the pointer*/
+  text-shadow: 2px 2px 2px rgb(0, 6, 71);
+  color: rgb(156, 208, 254);
 }
 
 .choices-list:checked + label {
   /* sibling elements : for checked radio button add property to next label*/
   background-color: rgba(232, 67, 210, 0.593);
-  border-color: rgb(29, 0, 248);
+  border-color: rgb(78, 74, 109);
 }
 
-.choices-list:focus + label {
-  /* sibling elements : for focus radio button add property to next label*/
-  border: 3px solid rgb(255, 132, 0);
+/* .choices-list:focus + label { */
+/* sibling elements : for focus radio button add property to next label*/
+/* border: 3px solid rgb(255, 132, 0); */
+/* background-color: rgb(122, 48, 48); */
+/* } */
+
+#next button {
+  background: rgba(59, 56, 107, 0.822);
+  width: 10rem;
+  justify-content: center;
+  border-radius: 0%;
+  padding: 0.5em;
+  margin-top: 1em;
+}
+#next button:hover {
+  background: rgb(59, 56, 107);
+  box-shadow: 0 0 1em 0.5em rgb(163, 160, 212);
 }
 
 /* Credits */
