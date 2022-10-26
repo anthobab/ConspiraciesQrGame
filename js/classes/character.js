@@ -8,6 +8,7 @@ export class Characters {
     this.category = category;
     this.faceImg = faceImg;
     this.faceVisible = false;
+    this.alive = true;
     this.rule = {};
   }
   action(ActivePlayer, DefenderPlayers, treasure, deck) {}

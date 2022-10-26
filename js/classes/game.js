@@ -26,7 +26,6 @@ export class Game {
       "untouchable",
       "negociator",
     ];
-
     this.log = "The Game begins : \n";
     this.choices = [
       {
@@ -40,7 +39,7 @@ export class Game {
         text: "Murder : Pay 7 coins to assassinate an opponent.",
         action: (activePlayer, defenderPlayers, treasure, deck) => {
           activePlayer.treasure -= 7;
-          defenderPlayers.cardToKill = true;
+          defenderPlayers.cardToKill += 1;
         },
         state: true,
       },
@@ -60,16 +59,23 @@ export class Game {
       this.deck.cardsList.splice(0, 1)[0], // take cards from the deck
       this.deck.cardsList.splice(1, 1)[0]
     );
+    this.activePlayer = this.player;
+    this.log += "it's player " + this.activePlayer.name + " turn...";
     this.computer = new Computer(
       "computer",
       this.deck.cardsList.splice(0, 1)[0],
       this.deck.cardsList.splice(0, 1)[0]
     );
+    this.opponentPlayer = this.computer;
   }
 
   next(choice, activePlayer, defenderPlayers, treasure, deck) {
     console.log(choice);
     this.choices[choice].action(activePlayer, defenderPlayers, treasure, deck);
+    this.update(activePlayer, defenderPlayers);
+  }
+  update(activePlayer, defenderPlayers) {
+    // check if a character is dead
   }
 
   /* 

@@ -37,6 +37,8 @@ const game = new Game(
   new Witch(),
   new Spy()
 );
+let activePlayer = game.activePlayer;
+let opponentPlayer = game.opponentPlayer;
 
 console.log();
 console.log(game.deck.cardsList);
@@ -82,9 +84,69 @@ nextButton.addEventListener("click", (event) => {
     document.querySelector(".choices-list:checked").getAttribute("value")
   );
 
-  game.next(indexAction, game.player, game.computer, 0, game.deck);
-  //mise à jour des morts et des
-  //
+  game.next(indexAction, activePlayer, opponentPlayer, 0, game.deck);
+  //mise à jour des morts et des cartes
+  //si perso mort, choisir lequel
+  while (opponentPlayer.cardToKill > 0) {
+    killACard(opponentPlayer, activePlayer);
+
+    opponentPlayer.cardToKill -= 1;
+  }
+  activePlayer = game.activePlayer;
+  // if (activePlayer.computer){
+  //   // if a computer
+  // }
+  // else{
+
+  // }
+
+  //vérification du gagnant
+  //mise à jour des mouvements de pièces
   console.log(game.player);
   console.log(game.computer);
 });
+
+function killACard(victim, killer) {
+  // TODO : animation from killer to victim
+
+  //victim.name; //"player"
+  const cardsContainer = document.getElementById(victim.name + "Deck");
+  const cards = [];
+  cards[0] = document.getElementById(victim.name + "Card1");
+  cards[1] = document.getElementById(victim.name + "Card2");
+
+  cards.forEach((card) => {
+    let indexCard = cards.indexOf(card);
+    if (victim.cards[indexCard].alive) {
+      console.log("carteVictime en hover", victim.cards[indexCard]);
+      cards[indexCard].querySelector("img").classList.add("card-hover");
+    }
+  });
+
+  // add event listener to kill a card when its done
+  cardsContainer.addEventListener("click", function selectACard(event) {
+    console.log("EventListener Call");
+    // console.log(event.target.querySelector("+div"));
+    // console.log(event.target.parentElement);
+    if (
+      event.target.parentElement === cards[0] ||
+      event.target.parentElement === cards[1]
+    ) {
+      console.log("card selected");
+
+      // removed hover on cards
+      cardsContainer
+        .querySelectorAll(".card-hover")
+        .forEach((element) => element.classList.remove("card-hover"));
+
+      //kill the selected card
+      let indexCard = cards.indexOf(event.target.parentElement);
+      //  alive false on the selected card
+      //  image red
+      cards[indexCard].querySelector("img").classList.add("card-killed");
+      victim.cards[indexCard].alive = false;
+      // remove the listener once a card is selected
+      cardsContainer.removeEventListener("click", selectACard);
+    }
+  });
+}

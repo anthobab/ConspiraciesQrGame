@@ -3,6 +3,6 @@ export default class Player {
     this.name = name;
     this.treasure = 2;
     this.cards = [character1, charcater2];
-    this.cardToKill = false;
+    this.cardToKill = 0;
   }
 }

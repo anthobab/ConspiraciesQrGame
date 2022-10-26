@@ -1,3 +1,8 @@
+/* variables */
+:root {
+  --gold-color: rgb(229, 184, 11); /*Pure Gold   use :  var(--gold-color); */
+}
+
 * {
   font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
     "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
@@ -133,6 +138,17 @@ header {
 #next button:hover {
   background: rgb(59, 56, 107);
   box-shadow: 0 0 1em 0.5em rgb(163, 160, 212);
+}
+
+.card-hover:hover {
+  background: rgb(59, 56, 107);
+  box-shadow: 0 0 1em 0.5em rgb(163, 160, 212);
+}
+
+.card-killed {
+  /* filter: blur(0.1px) grayscale(1) hue-rotate(90deg); */
+  filter: grayscale(100%) brightness(35%) sepia(100%) hue-rotate(310deg)
+    saturate(500%) contrast(0.8);
 }
 
 /* Credits */
