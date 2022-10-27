@@ -1,6 +1,7 @@
 // 5 Categories of Characters : [collectors, assassins, robbers, untouchables, negociators]
 // with each 3 possible Character. First step : 1 character for each category.
 // [Duchess, Assassin, Pirate, Witch, Spy]
+// actionType = 'counter' 'action' 'bluff' 'info'
 
 export class Characters {
   constructor(name, category, faceImg) {
@@ -11,10 +12,11 @@ export class Characters {
     this.alive = true;
     this.rule = {};
   }
-  action(ActivePlayer, DefenderPlayers, treasure, deck) {}
+  action(activePlayer, defenderPlayers, log, deck, actionType) {}
+  condition(activePlayer, defenderPlayers, log, deck, actionType) {}
 }
 
-// 1 - category collectors of Characters
+// 1 - category Collectors of Characters
 export class Collectors extends Characters {
   constructor(name, faceImg) {
     super(name, "Collectors", faceImg);
@@ -25,15 +27,19 @@ export class Collectors extends Characters {
 export class Duchess extends Collectors {
   constructor() {
     // const faceImg= new Image()
-    const faceImg = new Image();
-    faceImg.src = "../../assets/Kiss01.png";
+    // const faceImg = new Image();
+    // faceImg.src =
+    const faceImg = "../../assets/Kiss01.png";
     super("Duchess", faceImg);
     this.rule.en = "Duchess : Take 3 coins from the treasure";
     this.rule.fr = "Duchesse : Prend 3 pièces au trésor";
   }
-  action(ActivePlayer, DefenderPlayers, treasure, deck) {
-    ActivePlayer.treasure += 3;
+  action(activePlayer, defenderPlayers, log, deck, actionType) {
+    activePlayer.treasure += 3;
     return "treasure_player_3";
+  }
+  condition(activePlayer, defenderPlayers, log, deck, actionType) {
+    return true;
   }
 }
 
@@ -47,14 +53,21 @@ export class Assassins extends Characters {
 // Assasin
 export class Assassin extends Assassins {
   constructor() {
-    const faceImg = new Image();
-    faceImg.src = "../../assets/Sasha01.png";
+    const faceImg = "../../assets/Sasha01.png";
     super("Assassin", faceImg);
-    this.rule.en = "Assassin : Take 4 coins from the treasure";
-    this.rule.fr = "Assassin : Prend 4 pièces au trésor";
+    this.rule.en = "Assassin : Pay 3 coins to assassinate an opponent";
+    this.rule.fr =
+      "Assassin : Payer 3 pièces au trésor pour assassiner un adversaire";
   }
-  action(ActivePlayer, DefenderPlayers, treasure, deck) {
-    ActivePlayer.treasure += 4;
+  action(activePlayer, defenderPlayers, log, deck, actionType) {
+    activePlayer.treasure -= 3;
+    defenderPlayers.cardToKill = true;
+  }
+  condition(activePlayer, defenderPlayers, log, deck, actionType) {
+    if (activePlayer.treasure >= 3) {
+      return true;
+    }
+    return false;
   }
 }
 
@@ -68,24 +81,26 @@ export class Robbers extends Characters {
 // Pirate
 export class Pirate extends Robbers {
   constructor() {
-    const faceImg = new Image();
-    faceImg.src = "../../assets/Leo01.png";
+    const faceImg = "../../assets/Leo01.png";
     super("Pirate", faceImg);
     this.rule.en = "Pirate : Steals 2 coins from an opponent";
     this.rule.fr = "Pirate : Vole 2 pièces à un adversaire";
   }
-  action(ActivePlayer, DefenderPlayers, treasure, deck) {
-    if (DefenderPlayers.treasure >= 2) {
-      DefenderPlayers.treasure -= 2;
-      ActivePlayer.treasure += 2;
+  action(activePlayer, defenderPlayers, log, deck, actionType) {
+    if (defenderPlayers.treasure >= 2) {
+      defenderPlayers.treasure -= 2;
+      activePlayer.treasure += 2;
       return "opponent_player_2";
     } else {
       return false;
     }
   }
+  condition(activePlayer, defenderPlayers, log, deck, actionType) {
+    return defenderPlayers.treasure >= 2;
+  }
 }
 
-// 4 - category collectors of Characters
+// 4 - category Untouchables of Characters
 export class Untouchables extends Characters {
   constructor(name, faceImg) {
     super(name, "Untouchables", faceImg);
@@ -95,14 +110,28 @@ export class Untouchables extends Characters {
 // Witch
 export class Witch extends Untouchables {
   constructor() {
-    const faceImg = new Image();
-    faceImg.src = "../../assets/Hitsu01.png";
+    const faceImg = "../../assets/Hitsu01.png";
     super("Witch", faceImg);
-    this.rule.en = "Witch : as duchess";
+    this.rule.en =
+      "Witch : to counter the Assassin or to bring 5 coins after you loose a card";
     this.rule.fr = "Sorcière : comme Duchesse";
   }
-  action(ActivePlayer, DefenderPlayers, treasure, deck) {
-    ActivePlayer.treasure += 3;
+  action(activePlayer, defenderPlayers, log, deck, actionType) {
+    // activePlayer.treasure += 3;
+  }
+  condition(activePlayer, defenderPlayers, log, deck, actionType) {
+    if (actionType === "counter") {
+      return true;
+    }
+    return false;
+  }
+  counterAction(activePlayer, defenderPlayers, log, deck, actionType) {}
+  ifDeath(activePlayer, defenderPlayers, log, deck, actionType) {}
+  counterCondition(activePlayer, defenderPlayers, log, deck, actionType) {
+    if (actionType === "counter") {
+      return true;
+    }
+    return false;
   }
 }
 
@@ -113,16 +142,27 @@ export class Negociators extends Characters {
   }
 }
 
-// Witch
+// Spy
 export class Spy extends Negociators {
   constructor() {
-    const faceImg = new Image();
-    faceImg.src = "../../assets/Uta01.png";
+    const faceImg = "../../assets/Uta01.png";
     super("Spy", faceImg);
-    this.rule.en = "Take 3 coins from the treasure";
-    this.rule.fr = "Prend 3 pièces au trésor";
+    this.rule.en = "Spy : Change your deck";
+    this.rule.fr = "l'Espion : Changer de cartes";
   }
-  action(ActivePlayer, DefenderPlayers, treasure, deck) {
-    ActivePlayer.treasure += 3;
+  action(activePlayer, defenderPlayers, log, deck, actionType) {
+    // TODO depends of the number of alive cards
+    console.log(activePlayer.cards);
+    activePlayer.cards = activePlayer.cards.map((card) => {
+      if (card.alive) {
+        deck.cardsList.push(card);
+        return deck.cardsList.shift();
+      }
+      return card;
+    });
+    console.log(activePlayer.cards);
+  }
+  condition(activePlayer, defenderPlayers, log, deck, actionType) {
+    return true;
   }
 }

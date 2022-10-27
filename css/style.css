@@ -1,10 +1,12 @@
 /* variables */
+@import url("https://fonts.googleapis.com/css2?family=Cairo&display=swap");
+
 :root {
   --gold-color: rgb(229, 184, 11); /*Pure Gold   use :  var(--gold-color); */
 }
 
 * {
-  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+  font-family: "Cairo", "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
     "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
   color: white;
 }
@@ -40,7 +42,7 @@ header {
 }
 
 /* Section Game */
-#game {
+.game {
   display: flex;
   margin: 0.1rem;
   justify-content: stretch;
@@ -50,16 +52,14 @@ header {
   flex-grow: 1;
 }
 
-#game * {
+.game * {
   display: flex;
   margin: 0.1rem;
-  justify-content: center;
-  align-items: center;
 }
 
-#game > div {
+.game > div {
   /* justify-content: center; */
-  margin: 1rem;
+  margin: 0.2rem;
   align-content: space-between;
   align-items: stretch;
   justify-content: space-evenly;
@@ -71,10 +71,34 @@ header {
   flex-direction: column-reverse;
   justify-items: center;
   align-content: space-between;
+  align-items: center;
 }
 .card img {
   width: 10vw;
 }
+
+.card-deck {
+  width: 40vw;
+  justify-content: space-around;
+}
+
+#choices .hidden,
+.hidden {
+  /* visibility: hidden; */
+  display: none; /*!important*/
+}
+
+/*treasure */
+.treasure {
+  width: 33%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+/* .tresure * {
+  align-content: flex-start;
+  justify-content: flex-start;
+} */
 
 /* Section Log : */
 
@@ -109,7 +133,7 @@ header {
   border-radius: 4px;
   width: 90%;
 }
-.choice-label:hover {
+.choice-labelhover:hover {
   /* Effect of the pointer*/
   text-shadow: 2px 2px 2px rgb(0, 6, 71);
   color: rgb(156, 208, 254);
@@ -149,6 +173,10 @@ header {
   /* filter: blur(0.1px) grayscale(1) hue-rotate(90deg); */
   filter: grayscale(100%) brightness(35%) sepia(100%) hue-rotate(310deg)
     saturate(500%) contrast(0.8);
+}
+
+.disabled {
+  background: rgba(71, 68, 114, 0.174);
 }
 
 /* Credits */

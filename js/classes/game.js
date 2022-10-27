@@ -17,6 +17,7 @@ import Player from "./player.js";
 export class Game {
   constructor(collector, assassin, robber, untouchable, negociator) {
     this.end = false;
+    this.actionType = "action";
     this.winner = null;
     this.playerNb = 2;
     this.characterList = [
@@ -30,23 +31,63 @@ export class Game {
     this.choices = [
       {
         text: "Income : Take 1 coin from the Treasure.",
-        action: (activePlayer, defenderPlayers, treasure, deck) => {
+        action: (activePlayer, defenderPlayers, log, deck, actionType) => {
           activePlayer.treasure += 1;
         },
+        condition: (activePlayer, defenderPlayers, log, deck, actionType) => {
+          return true;
+        },
         state: true,
+        character: false,
       },
       {
         text: "Murder : Pay 7 coins to assassinate an opponent.",
-        action: (activePlayer, defenderPlayers, treasure, deck) => {
+        action: (activePlayer, defenderPlayers, log, deck, actionType) => {
           activePlayer.treasure -= 7;
           defenderPlayers.cardToKill += 1;
         },
+        condition: (activePlayer, defenderPlayers, log, deck, actionType) => {
+          return activePlayer.treasure >= 7;
+        },
         state: true,
+        character: false,
+      },
+    ];
+    this.counterChoices = [
+      {
+        text: "Let it go ...",
+        action: (activePlayer, defenderPlayers, log, deck, actionType) => {
+          activePlayer.treasure += 1;
+        },
+        condition: (activePlayer, defenderPlayers, log, deck, actionType) => {
+          return true;
+        },
+        state: true,
+        character: false,
       },
     ];
     this.deck = new Deck(collector, assassin, robber, untouchable, negociator);
 
-    // add power of the characters' list
+    for (const char in this.deck.characters) {
+      const charac = this.deck.characters[char];
+      this.choices.push({
+        text: "invoke the " + charac.rule.en,
+        action: charac.action,
+        condition: charac.condition,
+        state: true,
+        character: char.name,
+      });
+      if (undefined !== charac.counterCondition) {
+        this.counterChoices.push({
+          text: "invoke the " + charac.rule.en,
+          action: charac.counterAction,
+          condition: charac.counterCondition,
+          state: true,
+          character: char.name,
+        });
+      }
+    }
+
     // add allowed action helper
     // add the lying helper
 
@@ -69,11 +110,72 @@ export class Game {
     this.opponentPlayer = this.computer;
   }
 
-  next(choice, activePlayer, defenderPlayers, treasure, deck) {
-    console.log(choice);
-    this.choices[choice].action(activePlayer, defenderPlayers, treasure, deck);
+  next(choice, activePlayer, defenderPlayers, log, deck, actionType) {
+    // console.log(choice);
+
+    switch (actionType) {
+      case "action":
+        listName = "choice";
+        break;
+      case "counter":
+        listName = "counterChoice";
+
+        break;
+      case "bluff":
+        listName = "believeLiar";
+
+        break;
+
+      default:
+        break;
+    }
+    this.choices[choice].action(
+      activePlayer,
+      defenderPlayers,
+      log,
+      deck,
+      actionType
+    );
     this.update(activePlayer, defenderPlayers);
+    //update allowed action state
+    const nextplayer = defenderPlayers;
+    switch (actionType) {
+      case "action":
+        //if action : 1rst step do the action
+        // 2nd step : check if liar is possible and GOTO bluff MODE
+        // 3rd step : check if any counter is possible and GOTO counter MODE
+        // final step : GOTO next turn, type action and toggle active player and defenderPlayers;
+        this.choices.forEach((actualchoice) => {
+          let index = this.choices.indexOf(choice);
+          //1rst rule : murder mandatory if treasure >= 10
+          if (nextplayer.treasure >= 10) {
+            if (index === 1) {
+              actualchoice.state = true;
+            } else {
+              actualchoice.state = false;
+            }
+          } else {
+            actualchoice.state = actualchoice.condition(
+              activePlayer,
+              defenderPlayers,
+              log,
+              deck,
+              actionType
+            );
+          }
+        });
+
+        break;
+
+      default:
+        this.choices.forEach((actualchoice) => {
+          let index = this.choices.indexOf(choice);
+          actualchoice.state = false;
+        });
+        break;
+    }
   }
+
   update(activePlayer, defenderPlayers) {
     // check if a character is dead
   }
@@ -182,7 +284,7 @@ export class Deck {
     this.characters.robber = robber;
     this.characters.untouchable = untouchable;
     this.characters.negociator = negociator;
-    this.cardNumber = 3;
+    this.cardNumber = 2;
     this.cardsList = [];
 
     this.init();

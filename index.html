@@ -18,46 +18,84 @@
     </header>
     <!-- <div id="sections"> -->
     <section id="logo-start">
-      <button id="start-buttonn">Start The Game</button>
+      <button id="start-button">Start The Game</button>
     </section>
-    <section id="game">
+    <section id="game" class="game">
       <div id="computerDeck" class="deck">
-        <div id="computerCard1" class="card">
-          <p>computer card 1</p>
-          <img src="./assets/cardVerso.jpeg" alt="Card Verso" />
+        <div class="card-deck">
+          <div id="computerCard1" class="card">
+            <p>computer card 1</p>
+            <img src="./assets/cardVerso.jpeg" alt="Card Verso" class="verso" />
+            <img src="" alt="Card Recto" class="recto hidden" />
+          </div>
+          <div id="computerCard2" class="card">
+            <p>computer card 2</p>
+            <img src="./assets/cardVerso.jpeg" alt="Card Verso" class="verso" />
+            <img src="" alt="Card Recto" class="recto hidden" />
+          </div>
         </div>
-        <div id="computerCard2" class="card">
-          <p>computer card 2</p>
-          <img src="./assets/cardVerso.jpeg" alt="Card Verso" />
+        <div id="computerTreasure" class="treasure">
+          <p>Computer Treasure :</p>
+          <p id="computerTreasureCounter">2</p>
         </div>
       </div>
-      <div>TREEEEEEASUUUUUURE ********</div>
+
+      <div>TREEEEEEASUUUUUURE picture</div>
+
       <div id="playerDeck" class="deck">
-        <div id="playerCard1" class="card">
-          <p>player card 1</p>
-          <img src="./assets/cardVerso.jpeg" alt="Card Verso" />
+        <div class="card-deck">
+          <div id="playerCard1" class="card">
+            <p>player card 1</p>
+            <img src="./assets/cardVerso.jpeg" alt="Card Verso" class="verso" />
+            <img src="" alt="Card Recto" class="recto hidden" />
+          </div>
+          <div id="playerCard2" class="card">
+            <p>player card 2</p>
+            <img src="./assets/cardVerso.jpeg" alt="Card Verso" class="verso" />
+            <img src="" alt="Card Recto" class="recto hidden" />
+          </div>
         </div>
-        <div id="playerCard2" class="card">
-          <p>player card 2</p>
-          <img src="./assets/cardVerso.jpeg" alt="Card Verso" />
+
+        <div id="playerTreasure" class="treasure">
+          <p>My Treasure :</p>
+          <p id="playerTreasureCounter">2</p>
         </div>
       </div>
-    </section>
-    <section id="log">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga culpa aut
-      provident esse laudantium perspiciatis adipisci distinctio, sint eveniet
-      at minima! Quo fugit, recusandae voluptates consequatur nemo ducimus ipsa
-      natus.
     </section>
     <section id="choices">
+      <h2 id="Instruction">Choose your Action :</h2>
       <!-- <input type="radio" class="choices-list" name="choice" value="to define"> -->
 
       <!-- <input type="radio" id="choice1" class="choices-list" name="choice" value="0"> -->
       <!-- <label for="choice1" class="choice-label">first label</label> -->
+      <div class="hidden">
+        <input
+          type="radio"
+          class="choices-list"
+          name="believeLiar"
+          id="believe"
+          value="0"
+          checked="true"
+        /><label for="believe" class="choice-label choice-labelhover"
+          >I believe the opponent....</label
+        >
+      </div>
+      <div class="hidden">
+        <input
+          type="radio"
+          class="choices-list"
+          name="believeLiar"
+          id="liar"
+          value="1"
+        /><label for="liar" class="choice-label choice-labelhover"
+          >The opponent is a liar !!!</label
+        >
+      </div>
       <div id="next">
         <button id="nextButton" class="next-button">Next</button>
       </div>
     </section>
+    <section id="log">Log lines</section>
     <!-- </div> -->
     <footer>credits</footer>
     <script src="./js/script.js" type="module"></script>
