@@ -147,6 +147,7 @@ function startGame() {
     if (game.activePlayer === "player") {
       game.log += "\ninstruction - It's your turn to play ! Choose an action";
     } else {
+      game.log += "\ninstruction - It's computer turn to play !";
     }
     //select the good value
     let listName = "";
@@ -218,12 +219,13 @@ function startGame() {
     // }
     // else{
     // }
-    let starttext = log.lastIndexOf("instruction - ") + "instruction - ".length;
-    let endOfLine = log.lastIndexOf("\n");
+    let starttext =
+      game.log.lastIndexOf("instruction - ") + "instruction - ".length;
+    let endOfLine = game.log.lastIndexOf("\n");
     if (endOfLine < starttext) {
-      endOfLine = log.length;
+      endOfLine = game.log.length;
     }
-    instruction.innerText = log.slice(starttext, endOfLine);
+    instruction.innerText = game.log.slice(starttext, endOfLine);
   });
 }
 
@@ -523,7 +525,7 @@ function endGame(game) {
       "Congratulation You Win ! \n Wanna play again with me ? : click Restart "
     );
   } else {
-    console.log("You Loose !!!  Try Again ... : ");
-    instruction.innerText = "You Loose !!!  Try Again ... : click Restart";
+    console.log("You Lose !!!  Try Again ... : ");
+    instruction.innerText = "You Lose !!!  Try Again ... : click Restart";
   }
 }

@@ -3,8 +3,8 @@
 ## Why I choose this game?
 
 Mainly because I love the board game "Complots" (which is the new edition of "Coup") that ConspiracieS is inspired by.
-It seemmed to be great for DOM manipulation and JS in general.
-This game has a kind of complex logic with a lot of rules to implement, with some bluff and counter, wich is verry challenging.
+It seemed to be great for DOM manipulation and JS in general.
+This game has a kind of complex logic with a lot of rules to implement, with some bluff and counter, which is very challenging.
 
 ## Key features
 
@@ -25,11 +25,12 @@ This game has a kind of complex logic with a lot of rules to implement, with som
 - Add other characters to the game
 - Add player
 
-### About the rules :
+### About the rules:
 
 Earn (or steal) coins to grow your treasure and kill your opponent's characters.
-If your treasure is more than 9 coins, opponent's characters assassination is mandatory and will be automaticly done.
-You can use a character's power but pay attention, if you don't have the character in your deck, the opponent could ask to check that you're not a lyer. If you lie, one of your character will be killed, otherwise your card will be changed and your oppenent will loose a card as he doesn't trust you.
-You can also ask to check your opponent's character if he used a character power, but identically, you will …!
+If your treasure is more than 9 coins, opponent's characters assassination is mandatory and will be automatically done.
+You can use a character's power but pay attention, if you don't have the character in your deck, the opponent could ask to check that you're not a liar. If you lie, one of your characters will be killed, otherwise your card will be changed, and your opponent will lose a card as he doesn't trust you.
+You can also ask to check your opponent's character if he used a character power, but identically, if he has the character needed, you will lose a card otherwise he will lose a card.
+Hint for bluff: there is 5 characters and the game deck as twice the characters (so 10 cards in the deck)
 
 ## [Link to test the game](https://anthobab.github.io/ConspiraciesQrGame/)

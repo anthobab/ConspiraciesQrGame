@@ -127,6 +127,7 @@ export class Witch extends Untouchables {
   counterAction(activePlayer, defenderPlayers, log, deck, actionType) {}
   ifDeath(activePlayer, defenderPlayers, log, deck, actionType) {}
   counterCondition(activePlayer, defenderPlayers, log, deck, actionType) {
+    return false;
     if (actionType === "counter") {
       //if counter action check if last invoke of activeplayer is Assassin
       // TODO check about ASSASSINS instead of Assassin

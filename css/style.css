@@ -129,7 +129,7 @@ header {
   /* padding: 10px 20px; */
   /* font-family: sans-serif, Arial;
   font-size: 16px; */
-  border: 2px solid #b56a6a;
+  border: 2px solid rgb(122, 48, 48);
   border-radius: 4px;
   width: 90%;
 }
@@ -141,7 +141,7 @@ header {
 
 .choices-list:checked + label {
   /* sibling elements : for checked radio button add property to next label*/
-  background-color: rgba(232, 67, 210, 0.593);
+  background-color: rgba(67, 177, 232, 0.593);
   border-color: rgb(78, 74, 109);
 }
 
@@ -152,7 +152,7 @@ header {
 /* } */
 
 #next button {
-  background: rgba(59, 56, 107, 0.822);
+  background: rgba(67, 177, 232, 0.593);
   width: 10rem;
   justify-content: center;
   border-radius: 0%;
@@ -160,12 +160,12 @@ header {
   margin-top: 1em;
 }
 #next button:hover {
-  background: rgb(59, 56, 107);
+  background: rgba(67, 177, 232, 0.593);
   box-shadow: 0 0 1em 0.5em rgb(163, 160, 212);
 }
 
 .card-hover:hover {
-  background: rgb(59, 56, 107);
+  background: rgba(67, 177, 232, 0.593);
   box-shadow: 0 0 1em 0.5em rgb(163, 160, 212);
 }
 
