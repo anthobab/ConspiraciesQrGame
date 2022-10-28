@@ -144,7 +144,10 @@ function startGame() {
   game.log += "\ninstruction - It's your turn to play ! Choose an action";
   const nextELid = nextButton.addEventListener("click", (event) => {
     let indexChosenValue;
-    game.log();
+    if (game.activePlayer === "player") {
+      game.log += "\ninstruction - It's your turn to play ! Choose an action";
+    } else {
+    }
     //select the good value
     let listName = "";
     switch (game.actionType) {
