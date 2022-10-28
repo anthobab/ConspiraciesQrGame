@@ -112,9 +112,8 @@ export class Witch extends Untouchables {
   constructor() {
     const faceImg = "../../assets/Hitsu01.png";
     super("Witch", faceImg);
-    this.rule.en =
-      "Witch : to counter the Assassin or to bring 5 coins after you loose a card";
-    this.rule.fr = "Sorcière : comme Duchesse";
+    this.rule.en = "Witch : to counter the Assassin "; // or to bring 5 coins after you loose a card)";
+    this.rule.fr = "Sorcière : contre l'Aassin ";
   }
   action(activePlayer, defenderPlayers, log, deck, actionType) {
     // activePlayer.treasure += 3;
@@ -129,7 +128,14 @@ export class Witch extends Untouchables {
   ifDeath(activePlayer, defenderPlayers, log, deck, actionType) {}
   counterCondition(activePlayer, defenderPlayers, log, deck, actionType) {
     if (actionType === "counter") {
-      return true;
+      //if counter action check if last invoke of activeplayer is Assassin
+      // TODO check about ASSASSINS instead of Assassin
+      if (
+        lastStrLedBySpecialStr(log, " action : ", activePlayer.name) &&
+        lastStrFollowedBySpecialStr(log, " action : ", "invoke Assassin")
+      ) {
+        return true;
+      }
     }
     return false;
   }
@@ -165,4 +171,26 @@ export class Spy extends Negociators {
   condition(activePlayer, defenderPlayers, log, deck, actionType) {
     return true;
   }
+}
+
+//Functions
+// lastStrLedBySpecialStr(log, " action : ", "2") &&
+//   lastStrFollowedBySpecialStr(log, " action : ", "invoke Duchess");
+// console.log(lastStrLedBySpecialStr(log, " action : ", "2"));
+
+function lastStrLedBySpecialStr(log, laststr, previousStr) {
+  let starttext = log.lastIndexOf(laststr);
+  return log.slice(starttext - previousStr.length, starttext) === previousStr;
+}
+// console.log(lastStrFollowedBySpecialStr(log, " action : ", "invoke Duchess"));
+
+function lastStrFollowedBySpecialStr(log, laststr, nextStr) {
+  let starttext = log.lastIndexOf(laststr);
+
+  return (
+    log.slice(
+      starttext + laststr.length,
+      starttext + laststr.length + nextStr.length
+    ) === nextStr
+  );
 }

@@ -20,6 +20,7 @@ const gameSection = document.getElementById("game");
 const logSection = document.getElementById("log");
 const choicesSection = document.getElementById("choices");
 const nextButton = document.getElementById("nextButton");
+const instruction = document.getElementById("Instruction");
 let firstStart = true;
 // const test = new Deck(
 //   new Duchess(),
@@ -42,6 +43,7 @@ startBtn.addEventListener("click", startGame);
 function startGame() {
   if (!firstStart) {
     //reinit game
+    window.location.reload();
   } else {
     startBtn.innerText = "Restart the Game";
     firstStart = false;
@@ -139,9 +141,10 @@ function startGame() {
   //
   // NEXT BUTTON : Event Listener next action
   //
-
-  nextButton.addEventListener("click", (event) => {
+  game.log += "\ninstruction - It's your turn to play ! Choose an action";
+  const nextELid = nextButton.addEventListener("click", (event) => {
     let indexChosenValue;
+    game.log();
     //select the good value
     let listName = "";
     switch (game.actionType) {
@@ -163,6 +166,7 @@ function startGame() {
         );
         break;
       case "bluff":
+      case "bluff-counter":
         listName = "believeLiar";
         indexChosenValue = Number(
           document
@@ -172,10 +176,18 @@ function startGame() {
         break;
 
       default:
+        console.log("ERR40 in script.js");
         break;
     }
 
-    game.next(indexChosenValue, activePlayer, opponentPlayer, 0, game.deck);
+    game.next(
+      indexChosenValue,
+      activePlayer,
+      opponentPlayer,
+      0,
+      game.deck,
+      game.actionType
+    );
 
     //mise à jour des morts et des cartes
     //si perso mort, choisir lequel
@@ -184,18 +196,31 @@ function startGame() {
 
       opponentPlayer.cardToKill -= 1;
     }
+    while (activePlayer.cardToKill > 0) {
+      killACard(activePlayer, opponentPlayer, game);
+
+      activePlayer.cardToKill -= 1;
+    }
+
     activePlayer = game.activePlayer;
+    opponentPlayer = game.opponentPlayer;
     if (game.winner) {
-      endGame(game.winner === "player");
+      endGame(game);
       console.log();
+    } else {
+      updateGame(game);
     }
     // if (activePlayer.computer){
     //   // if a computer
     // }
     // else{
     // }
-
-    updateGame(game);
+    let starttext = log.lastIndexOf("instruction - ") + "instruction - ".length;
+    let endOfLine = log.lastIndexOf("\n");
+    if (endOfLine < starttext) {
+      endOfLine = log.length;
+    }
+    instruction.innerText = log.slice(starttext, endOfLine);
   });
 }
 
@@ -204,19 +229,23 @@ function updateGame(game) {
   // update active Radio Btn
   updateRadioBtn(game);
 
+  // udate choice radio
+
   // source image on "html"
 
   updateImg(game);
   //mise à jour des mouvements de pièces
   updateTreasure(game);
 
-  //vérification du gagnant
+  //WINNER CHECK vérification du gagnant
   console.log(game.player);
   console.log(game.computer);
 }
-
 //DRY toDO
-function updateRadioBtn(game) {
+function updateRadioBtn(game, hideAll) {
+  if (typeof hideAll == "undefined") {
+    hideAll = false;
+  }
   //choices
   radioBtnAffectClass(game, "choices");
   // game.choices.forEach((choice) => {
@@ -281,6 +310,46 @@ function updateRadioBtn(game) {
   //       .classList.replace("choice-labelhover", "disabled");
   //   }
   // });
+
+  updateRadioChoice(game, hideAll);
+}
+
+function updateRadioChoice(game, hideAll) {
+  //hidden all the radio button
+  let allListName = ["choice", "counterChoice", "believeLiar"];
+  allListName.forEach((listName) => {
+    //hide all choices
+    document
+      .querySelectorAll("[name='" + listName + "']")
+      .forEach((element) => {
+        element.parentElement.classList.add("hidden");
+      });
+  });
+  let listName;
+  if (hideAll) {
+    return;
+  }
+  switch (game.actionType) {
+    //actionType = 'counter' 'action' 'bluff' 'info'
+
+    case "action":
+      listName = allListName[0];
+      break;
+    case "counter":
+      listName = allListName[1];
+      break;
+    case "bluff":
+    case "bluff-counter":
+      listName = allListName[2];
+      break;
+
+    default:
+      console.log(" default case, Action type not defined");
+      break;
+  }
+  document.querySelectorAll("[name='" + listName + "']").forEach((element) => {
+    element.parentElement.classList.remove("hidden");
+  });
 }
 
 function updateImg(currentGame) {
@@ -356,37 +425,53 @@ function killACard(victim, killer, game) {
         .forEach((element) => element.classList.add("card-hover"));
     }
   });
+  // IF VICTIM IS PLAYER
+  if (victim === game.player) {
+    // add event listener to kill a card when its done
+    cardsContainer.addEventListener("click", function selectACard(event) {
+      // console.log("EventListener Call");
+      // console.log(event.target.querySelector("+div"));
+      // console.log(event.target.parentElement);
+      if (
+        event.target.parentElement === cards[0] ||
+        event.target.parentElement === cards[1]
+      ) {
+        // console.log("card selected");
 
-  // add event listener to kill a card when its done
-  cardsContainer.addEventListener("click", function selectACard(event) {
-    // console.log("EventListener Call");
-    // console.log(event.target.querySelector("+div"));
-    // console.log(event.target.parentElement);
-    if (
-      event.target.parentElement === cards[0] ||
-      event.target.parentElement === cards[1]
-    ) {
-      // console.log("card selected");
+        // removed hover on cards
+        cardsContainer
+          .querySelectorAll(".card-hover")
+          .forEach((element) => element.classList.remove("card-hover"));
 
-      // removed hover on cards
-      cardsContainer
-        .querySelectorAll(".card-hover")
-        .forEach((element) => element.classList.remove("card-hover"));
+        //kill the selected card
+        let indexCard = cards.indexOf(event.target.parentElement);
+        //  alive false on the selected card
+        //  image red
+        cards[indexCard]
+          .querySelectorAll("img")
+          .forEach((element) => element.classList.add("card-killed"));
+        victim.cards[indexCard].alive = false;
 
-      //kill the selected card
-      let indexCard = cards.indexOf(event.target.parentElement);
-      //  alive false on the selected card
-      //  image red
-      cards[indexCard]
-        .querySelectorAll("img")
-        .forEach((element) => element.classList.add("card-killed"));
-      victim.cards[indexCard].alive = false;
+        updateGame(game);
+        // remove the listener once a card is selected
+        cardsContainer.removeEventListener("click", selectACard);
+      }
+      updateEndGame(game);
+    });
+  } else {
+    //computer is killed
+  }
+  updateEndGame(game);
+}
 
-      updateGame(game);
-      // remove the listener once a card is selected
-      cardsContainer.removeEventListener("click", selectACard);
-    }
-  });
+function updateEndGame(game) {
+  if (!game.computer.cards[0].alive && !game.computer.cards[1].alive) {
+    game.winner = "player";
+    endGame(game);
+  } else if (!game.player.cards[0].alive && !game.player.cards[1].alive) {
+    game.winner = "computer";
+    endGame(game);
+  }
 }
 
 function radioBtnAffectClass(game, choicesString) {
@@ -424,10 +509,18 @@ function radioBtnAffectClass(game, choicesString) {
   });
 }
 
-function endGame(win) {
-  if (win) {
-    console.log("Congratulation You Win ! \n Wanna play again with me ?");
+function endGame(game) {
+  updateRadioBtn(game, true);
+  nextButton.classList.add("hidden");
+
+  if (game.winner === "player") {
+    instruction.innerText =
+      "Congratulation You Win ! \n Wanna play again with me ?";
+    console.log(
+      "Congratulation You Win ! \n Wanna play again with me ? : click Restart "
+    );
   } else {
     console.log("You Loose !!!  Try Again ... : ");
+    instruction.innerText = "You Loose !!!  Try Again ... : click Restart";
   }
 }

@@ -66,6 +66,10 @@ export class Game {
         character: false,
       },
     ];
+    this.actionChoiceVal = 0;
+    this.counterChoiceVal = 0;
+    this.bluffChoiceVal = 0;
+    this.bluffCounterChoiceVal = 0;
     this.deck = new Deck(collector, assassin, robber, untouchable, negociator);
 
     for (const char in this.deck.characters) {
@@ -113,7 +117,7 @@ export class Game {
   next(choice, activePlayer, defenderPlayers, log, deck, actionType) {
     // console.log(choice);
 
-    switch (actionType) {
+    /* switch (actionType) {
       case "action":
         listName = "choice";
         break;
@@ -125,27 +129,301 @@ export class Game {
         listName = "believeLiar";
 
         break;
-
+      case "info":
       default:
         break;
-    }
-    this.choices[choice].action(
-      activePlayer,
-      defenderPlayers,
-      log,
-      deck,
-      actionType
-    );
+     }*/
+
+    // DRY not needed ?
     this.update(activePlayer, defenderPlayers);
     //update allowed action state
-    const nextplayer = defenderPlayers;
+    const nextplayer = defenderPlayers; //DRY usefull ?
+    let isLiar = false;
     switch (actionType) {
       case "action":
-        //if action : 1rst step do the action
-        // 2nd step : check if liar is possible and GOTO bluff MODE
-        // 3rd step : check if any counter is possible and GOTO counter MODE
-        // final step : GOTO next turn, type action and toggle active player and defenderPlayers;
-        this.choices.forEach((actualchoice) => {
+        //case action :
+
+        // 1rst step : update this.actionChoiceVal, check if liar is possible and GOTO bluff MODE
+        // 2nd step : check if any counter is possible and GOTO counter MODE
+        // 3rd step : do the action, reset the choiceValue in this game,
+        // final step : if defenderPlayers.treasure>=10 : this.next(choice murder) else GOTO next turn, type action and toggle active player and defenderPlayers
+
+        // 1rst step : update this.actionChoiceVal, check if liar is possible and GOTO bluff MODE
+        this.actionChoiceVal = choice;
+
+        let isCounterPossible = false;
+        if (choice >= 2) {
+          //means its a character then bluffMode Enable
+          this.actionType = "bluff";
+          return;
+          //DRY2 counter
+          //2nd step : check if any counter is possible and GOTO counter MODE or resolve action
+
+          this.counterChoices.forEach((counterChoice, index) => {
+            if (!index) {
+              // exculde let it go and check if there is counter possible
+              counterChoice.state = this.counterChoices.condition(
+                activePlayer,
+                defenderPlayers,
+                log,
+                deck,
+                actionType
+              );
+              isCounterPossible ||= counterChoice.state;
+            }
+          });
+          //if (this.counterChoices.length>1)
+          if (isCounterPossible) {
+            this.actionType = "counter";
+          }
+        } else {
+          // 3rd step : do the action, reset the choiceValue in this game,
+
+          /// DO the ACTION DRY1start
+          this.choices[choice].action(
+            activePlayer,
+            defenderPlayers,
+            log,
+            deck,
+            actionType
+          );
+          //reset the choiceValue in this game
+          this.bluffChoiceVal = 0;
+          this.counterChoiceVal = 0;
+          this.bluffCounterChoiceVal = 0;
+
+          // final step : if defenderPlayers.treasure>=10 : this.next(choice murder witch is mandatory)
+          //   else GOTO next turn, type action and toggle active player and defenderPlayers
+
+          if (defenderPlayers.treasure >= 10) {
+            this.next(1, defenderPlayers, activePlayer, log, deck, "action");
+            //return;
+          } else {
+            this.actionType = "action";
+            this.activePlayer = defenderPlayers;
+            this.opponentPlayer = activePlayer;
+          }
+          /// DO the ACTION DRY1end
+        }
+
+        break;
+      case "counter":
+        //case counter :
+        // 1rst step check if let it go... selected, Do Action, and GOTO next turn, type action and toggle active player and defenderPlayers;
+        // 2nd step : a character is selected, GOTO bluff-counter MODE before resolving the counter
+        // final step : resolve counter and GOTO next turn, type action and toggle active player and defenderPlayers;
+
+        this.counterChoiceVal = choice;
+        // 1rst step check if let it go... selected, Do Action, and GOTO next turn, type action and toggle active player and defenderPlayers;
+        if (!choice) {
+          /// DO the ACTION DRY1start
+          this.choices[this.actionChoiceVal].action(
+            activePlayer,
+            defenderPlayers,
+            log,
+            deck,
+            "action"
+          );
+          //reset the choiceValue in this game
+          this.bluffChoiceVal = 0;
+          this.counterChoiceVal = 0;
+          this.bluffCounterChoiceVal = 0;
+
+          // final step : if defenderPlayers.treasure>=10 : this.next(choice murder witch is mandatory)
+          //   else GOTO next turn, type action and toggle active player and defenderPlayers
+
+          if (defenderPlayers.treasure >= 10) {
+            this.next(1, defenderPlayers, activePlayer, log, deck, "action");
+            //return;
+          } else {
+            this.actionType = "action";
+            this.activePlayer = defenderPlayers;
+            this.opponentPlayer = activePlayer;
+          }
+          /// DO the ACTION DRY1end
+        } else {
+          // 2nd step : a character is selected, GOTO bluff-counter MODE before resolving the counter
+          this.actionType = "bluff-counter";
+        }
+
+        // final step : resolve counter and GOTO next turn, type action and toggle active player and defenderPlayers;
+        // inside "bluff"  or "bluff-counter"
+
+        break;
+      case "bluff":
+        // if bluff : resolve bluff
+        // and allow counter if it could exist
+        //
+        isLiar = false;
+        // check if a bluff is requested :
+        if (choice) {
+          //check if choice action match the card deck of the potential liar
+          const potentialLiar = activePlayer;
+          const checkRequester = defenderPlayers;
+          isLiar = potentialLiar.cards
+            .filter((card) => card.alive)
+            .reduce(function (acc, card, index, array) {
+              return (
+                accumulator && this.choices[choice].character !== card.name
+              );
+            }, true);
+
+          if (isLiar) {
+            //kill a card to the Liar
+            potentialLiar.cardToKill += 1;
+            //Skip the action ! and go to next turn action
+          } else {
+            //not a liar, Renew the notALiarPlayer Card (that the opponent knows now) and check if counter is possible or do the action as per
+            // renew the card
+            potentialLiar.cards
+              .filter((card) => card.alive)
+              .every((card) => {
+                let indexArr = potentialLiar.cards.indexOf(card);
+
+                if (this.choices[choice].character === card.name) {
+                  deck.cardsList.push(potentialLiar.cards[indexArr]);
+                  potentialLiar.cards[indexArr] = deck.cardsList.shift();
+                  return false;
+                }
+              });
+
+            // kill a card
+            checkRequester.cardToKill += 1;
+
+            //DRY2 counter start
+
+            this.counterChoices.forEach((counterChoice, index) => {
+              if (index) {
+                // exclude let it go and check if there is counter possible
+                counterChoice.state = this.counterChoices.condition(
+                  activePlayer,
+                  defenderPlayers,
+                  log,
+                  deck,
+                  "counter"
+                );
+                isCounterPossible ||= counterChoice.state;
+              }
+            });
+            //if (this.counterChoices.length>1)
+            if (isCounterPossible) {
+              this.actionType = "counter";
+              break; //do not do action yet
+            }
+            //DRY2 counter end
+          }
+        }
+        // if is not a liar
+        if (!isLiar) {
+          //  here bluf not requested or is not a Liar then Do the action
+          /// DO the ACTION DRY1start !!!!!!!! CUT IN 2 PART
+          this.choices[this.actionChoiceVal].action(
+            activePlayer,
+            defenderPlayers,
+            log,
+            deck,
+            "action"
+          );
+        }
+        //reset the choiceValue in this game
+        this.bluffChoiceVal = 0;
+        this.counterChoiceVal = 0;
+        this.bluffCounterChoiceVal = 0;
+
+        // final step : if defenderPlayers.treasure>=10 : this.next(choice murder witch is mandatory)
+        //   else GOTO next turn, type action and toggle active player and defenderPlayers
+
+        if (defenderPlayers.treasure >= 10) {
+          this.next(1, defenderPlayers, activePlayer, log, deck, "action");
+          //return;
+        } else {
+          this.actionType = "action";
+          this.activePlayer = defenderPlayers;
+          this.opponentPlayer = activePlayer;
+        }
+        /// DO the ACTION DRY1end
+
+        // if (actionType === "bluff") {
+        // }
+        break;
+      case "bluff-counter":
+        // some DRY3 with bluff case COUNTER in MAJ when its different
+        // if bluff : resolve bluff
+        // and allow counter if it could exist
+        isLiar = false;
+        // check if a bluff is requested :
+        if (choice) {
+          //check if choice COUNTER action match the card deck of the potential liar
+          const potentialLiar = defenderPlayers;
+          const checkRequester = activePlayer;
+          isLiar = potentialLiar.cards
+            .filter((card) => card.alive)
+            .reduce(function (acc, card, index, array) {
+              return (
+                accumulator && this.choices[choice].character !== card.name
+              );
+            }, true);
+
+          if (isLiar) {
+            //kill a card to the Liar
+            potentialLiar.cardToKill += 1;
+            //Skip the COUNTER action ! and DO the ACTION then go to next turn action
+          } else {
+            //not a liar, checked it's already a "COUNTER" can't check if counter is possible SO do the COUNTER means do not DO action
+            // renew the card of the potentiel Liar and kill a card to the request of the check
+            potentialLiar.cards
+              .filter((card) => card.alive)
+              .every((card) => {
+                let indexArr = potentialLiar.cards.indexOf(card);
+
+                if (this.choices[choice].character === card.name) {
+                  deck.cardsList.push(potentialLiar.cards[indexArr]);
+                  potentialLiar.cards[indexArr] = deck.cardsList.shift();
+                  return false;
+                }
+              });
+            // kill a card
+            checkRequester.cardToKill += 1;
+          }
+        }
+        // if is a liar
+        if (isLiar) {
+          this.choices[this.actionChoiceVal].action(
+            activePlayer,
+            defenderPlayers,
+            log,
+            deck,
+            "action"
+          );
+        } else {
+          //not a liar or counterbluff not requested, then action is counter do Nothing
+          // LOG UPDATE ?
+        }
+        //reset the choiceValue in this game
+        this.bluffChoiceVal = 0;
+        this.counterChoiceVal = 0;
+        this.bluffCounterChoiceVal = 0;
+
+        // final step : if defenderPlayers.treasure>=10 : this.next(choice murder witch is mandatory)
+        //   else GOTO next turn, type action and toggle active player and defenderPlayers
+
+        if (defenderPlayers.treasure >= 10) {
+          this.next(1, defenderPlayers, activePlayer, log, deck, "action");
+          //return;
+        } else {
+          this.actionType = "action";
+          this.activePlayer = defenderPlayers;
+          this.opponentPlayer = activePlayer;
+        }
+        /// DO the ACTION DRY1end
+
+        // if (actionType === "bluff") {
+        // }
+
+        break;
+
+      //DRY  Update conditions :
+      /*this.choices.forEach((actualchoice) => {
           let index = this.choices.indexOf(choice);
           //1rst rule : murder mandatory if treasure >= 10
           if (nextplayer.treasure >= 10) {
@@ -163,15 +441,9 @@ export class Game {
               actionType
             );
           }
-        });
-
-        break;
-
+        });*/
       default:
-        this.choices.forEach((actualchoice) => {
-          let index = this.choices.indexOf(choice);
-          actualchoice.state = false;
-        });
+        console.log("default case swich in Game.next() (l446+) in game.js... ");
         break;
     }
   }
@@ -179,101 +451,6 @@ export class Game {
   update(activePlayer, defenderPlayers) {
     // check if a character is dead
   }
-
-  /* 
-  init() {
-		this.background = new Background(
-			"./assets/space.webp",
-			this.canvas,
-			this.ctx
-		)
-		for (const src of this.pokemonsSource) {
-			this.pokemons.push(new Pokemon(src, this.ctx, this.canvas))
-		}
-		this.player = new Player("./assets/pokeball.png", this.ctx, this.canvas)
-		this.createEventListeners()
-	}
-  start() {
-    this.animateId = requestAnimationFrame(() => this.animate());
-  }
-  stop() {
-    console.log(this.animateId);
-    cancelAnimationFrame(this.animateId);
-  }
-  animate() {
-    this.clear();
-    this.handleBackground();
-    for (const pokemon of this.pokemons) {
-      this.handlePokemon(pokemon);
-    }
-    this.player.draw();
-    for (const key in this.pressedKeys) {
-      if (this.pressedKeys[key]) {
-        this.player.move(key);
-      }
-    }
-
-    this.animateId = requestAnimationFrame(() => this.animate());
-  }
-
-  handlePokemon(pokemon) {
-    pokemon.outOfBound();
-    if (pokemon.collideWithPlayer(this.player)) {
-      this.stop();
-      this.showEndScreen();
-    }
-    pokemon.move();
-    pokemon.draw();
-  }
-
-  handleBackground() {
-    this.background.draw();
-    this.background.move();
-  }
-  createEventListeners() {
-    document.addEventListener("keydown", (event) => {
-      // console.log(event.key)
-      switch (event.key) {
-        case "ArrowRight":
-          this.pressedKeys.right = true;
-          break;
-        case "ArrowLeft":
-          this.pressedKeys.left = true;
-          break;
-        case "ArrowUp":
-          this.pressedKeys.up = true;
-          break;
-        case "ArrowDown":
-          this.pressedKeys.down = true;
-          break;
-      }
-    });
-    document.addEventListener("keyup", (event) => {
-      // console.log(event.key)
-      switch (event.key) {
-        case "ArrowRight":
-          this.pressedKeys.right = false;
-          break;
-        case "ArrowLeft":
-          this.pressedKeys.left = false;
-          break;
-        case "ArrowUp":
-          this.pressedKeys.up = false;
-          break;
-        case "ArrowDown":
-          this.pressedKeys.down = false;
-          break;
-      }
-    });
-  }
-  clear() {
-    this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-
-  showEndScreen() {
-    const modal = document.getElementById("modal");
-    modal.showModal();
-  } */
 }
 
 export class Deck {

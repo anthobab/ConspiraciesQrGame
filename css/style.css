@@ -19,9 +19,9 @@ body {
 
   background: linear-gradient(
     55deg,
-    rgba(2, 0, 36, 0.7) 0%,
-    rgba(0, 0, 106, 0.5) 23%,
-    rgba(5, 35, 61, 0.7) 100%
+    rgba(2, 0, 36, 1) 0%,
+    rgba(0, 0, 106, 1) 23%,
+    rgba(5, 35, 61, 1) 100%
   );
   min-height: 100vh;
 }
