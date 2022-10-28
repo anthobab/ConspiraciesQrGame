@@ -29,7 +29,7 @@ export class Duchess extends Collectors {
     // const faceImg= new Image()
     // const faceImg = new Image();
     // faceImg.src =
-    const faceImg = "../../assets/Kiss01.png";
+    const faceImg = "./assets/Kiss01.png";
     super("Duchess", faceImg);
     this.rule.en = "Duchess : Take 3 coins from the treasure";
     this.rule.fr = "Duchesse : Prend 3 pièces au trésor";
@@ -53,7 +53,7 @@ export class Assassins extends Characters {
 // Assasin
 export class Assassin extends Assassins {
   constructor() {
-    const faceImg = "../../assets/Sasha01.png";
+    const faceImg = "./assets/Sasha01.png";
     super("Assassin", faceImg);
     this.rule.en = "Assassin : Pay 3 coins to assassinate an opponent";
     this.rule.fr =
@@ -81,7 +81,7 @@ export class Robbers extends Characters {
 // Pirate
 export class Pirate extends Robbers {
   constructor() {
-    const faceImg = "../../assets/Leo01.png";
+    const faceImg = "./assets/Leo01.png";
     super("Pirate", faceImg);
     this.rule.en = "Pirate : Steals 2 coins from an opponent";
     this.rule.fr = "Pirate : Vole 2 pièces à un adversaire";
@@ -110,7 +110,7 @@ export class Untouchables extends Characters {
 // Witch
 export class Witch extends Untouchables {
   constructor() {
-    const faceImg = "../../assets/Hitsu01.png";
+    const faceImg = "./assets/Hitsu01.png";
     super("Witch", faceImg);
     this.rule.en = "Witch : to counter the Assassin "; // or to bring 5 coins after you loose a card)";
     this.rule.fr = "Sorcière : contre l'Aassin ";
@@ -152,7 +152,7 @@ export class Negociators extends Characters {
 // Spy
 export class Spy extends Negociators {
   constructor() {
-    const faceImg = "../../assets/Uta01.png";
+    const faceImg = "./assets/Uta01.png";
     super("Spy", faceImg);
     this.rule.en = "Spy : Change your deck";
     this.rule.fr = "l'Espion : Changer de cartes";
