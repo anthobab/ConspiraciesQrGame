@@ -144,11 +144,7 @@ function startGame() {
   game.log += "\ninstruction - It's your turn to play ! Choose an action";
   const nextELid = nextButton.addEventListener("click", (event) => {
     let indexChosenValue;
-    if (game.activePlayer === "player") {
-      game.log += "\ninstruction - It's your turn to play ! Choose an action";
-    } else {
-      game.log += "\ninstruction - It's computer turn to play !";
-    }
+
     //select the good value
     let listName = "";
     switch (game.actionType) {
@@ -193,6 +189,11 @@ function startGame() {
       game.actionType
     );
 
+    if (game.activePlayer === "player") {
+      game.log += "\ninstruction - It's your turn to play ! Choose an action";
+    } else {
+      game.log += "\ninstruction - It's computer turn to play !";
+    }
     //mise à jour des morts et des cartes
     //si perso mort, choisir lequel
     while (opponentPlayer.cardToKill > 0) {
@@ -214,22 +215,35 @@ function startGame() {
     } else {
       updateGame(game);
     }
-    // if (activePlayer.computer){
-    //   // if a computer
-    // }
-    // else{
-    // }
-    let starttext =
-      game.log.lastIndexOf("instruction - ") + "instruction - ".length;
-    let endOfLine = game.log.lastIndexOf("\n");
-    if (endOfLine < starttext) {
-      endOfLine = game.log.length;
+
+    /// computer turn
+    let computerTurn =
+      activePlayer.name === "computer" && game.actionType === "action";
+    if (computerTurn) {
+      updateRadioBtn(game, true);
+      game.next();
+      //   // if a computer
     }
-    instruction.innerText = game.log.slice(starttext, endOfLine);
-  });
+    //  else{
+    // }
+
+    updateInstruction(game);
+  }); // end of event Listener Next
 }
 
 // FUNCTIONS
+
+function updateInstruction(game) {
+  let starttext =
+    game.log.lastIndexOf("instruction - ") + "instruction - ".length;
+  let endOfLine = game.log.lastIndexOf("\n");
+  if (endOfLine < starttext) {
+    endOfLine = game.log.length;
+  }
+  instruction.innerText = game.log.slice(starttext, endOfLine);
+  console.log(instruction.innerText);
+}
+
 function updateGame(game) {
   // update active Radio Btn
   updateRadioBtn(game);
@@ -322,6 +336,7 @@ function updateRadioBtn(game, hideAll) {
 function updateRadioChoice(game, hideAll) {
   //hidden all the radio button
   let allListName = ["choice", "counterChoice", "believeLiar"];
+
   allListName.forEach((listName) => {
     //hide all choices
     document
@@ -414,58 +429,113 @@ function updateTreasure(currentGame) {
 
 function killACard(victim, killer, game) {
   // TODO : animation from killer to victim
-
-  //victim.name; //"player"
+  //get DOM card
   const cardsContainer = document.getElementById(victim.name + "Deck");
   const cards = [];
   cards[0] = document.getElementById(victim.name + "Card1"); //div(img(recto1)+img(verso1))
   cards[1] = document.getElementById(victim.name + "Card2");
-
-  cards.forEach((card) => {
-    let indexCard = cards.indexOf(card);
-    if (victim.cards[indexCard].alive) {
-      console.log("carteVictime en hover", victim.cards[indexCard]);
-      cards[indexCard]
-        .querySelectorAll("img")
-        .forEach((element) => element.classList.add("card-hover"));
-    }
-  });
+  // Hide Radio Choice
+  updateRadioBtn(game, true);
   // IF VICTIM IS PLAYER
   if (victim === game.player) {
-    // add event listener to kill a card when its done
-    cardsContainer.addEventListener("click", function selectACard(event) {
-      // console.log("EventListener Call");
-      // console.log(event.target.querySelector("+div"));
-      // console.log(event.target.parentElement);
-      if (
-        event.target.parentElement === cards[0] ||
-        event.target.parentElement === cards[1]
-      ) {
-        // console.log("card selected");
+    //victim.name; //"player"
+    //
+    //two cards remaining alive ?
 
-        // removed hover on cards
-        cardsContainer
-          .querySelectorAll(".card-hover")
-          .forEach((element) => element.classList.remove("card-hover"));
+    if (2 === victim.cards.filter((card) => card.alive).length) {
+      //choose a card
+      //display choose a card to kill :
+      game.log +=
+        "\ninstruction - one of your card will be killed... Select one of your card to kill to continue :";
+      updateInstruction(game);
+      //hide next btn and choices
+      nextButton.classList.add("hidden");
+      updateRadioBtn(game, true);
 
-        //kill the selected card
-        let indexCard = cards.indexOf(event.target.parentElement);
-        //  alive false on the selected card
-        //  image red
-        cards[indexCard]
-          .querySelectorAll("img")
-          .forEach((element) => element.classList.add("card-killed"));
-        victim.cards[indexCard].alive = false;
+      //Hover on :
+      cards.forEach((card) => {
+        let indexCard = cards.indexOf(card);
+        if (victim.cards[indexCard].alive) {
+          console.log("carteVictime en hover", victim.cards[indexCard]);
+          cards[indexCard]
+            .querySelectorAll("img")
+            .forEach((element) => element.classList.add("card-hover"));
+        }
+      });
 
-        updateGame(game);
-        // remove the listener once a card is selected
-        cardsContainer.removeEventListener("click", selectACard);
-      }
+      // add event listener to kill a card when its done
+      cardsContainer.addEventListener("click", function selectACard(event) {
+        // console.log("EventListener Call");
+        // console.log(event.target.querySelector("+div"));
+        // console.log(event.target.parentElement);
+        if (
+          event.target.parentElement === cards[0] ||
+          event.target.parentElement === cards[1]
+        ) {
+          // console.log("card selected");
+          nextButton.classList.remove("hidden");
+          // removed hover on cards
+          cardsContainer
+            .querySelectorAll(".card-hover")
+            .forEach((element) => element.classList.remove("card-hover"));
+
+          //kill the selected card
+          let indexCard = cards.indexOf(event.target.parentElement);
+          //  alive false on the selected card
+          //  image red
+          cards[indexCard]
+            .querySelectorAll("img")
+            .forEach((element) => element.classList.add("card-killed"));
+          victim.cards[indexCard].alive = false;
+
+          updateGame(game);
+          // remove the listener once a card is selected
+          cardsContainer.removeEventListener("click", selectACard);
+        }
+
+        updateEndGame(game);
+      }); // end of Event Listener
+    } else {
+      // if just 1 cards left dont ask just infor last card killed
+
+      game.log += "\ninstruction - your 2nd card will be killed... 😢 ";
+      updateInstruction(game);
+
+      //kill the selected card
+      let indexCard = victim.cards.indexOf(
+        victim.cards.filter((card) => card.alive)[0]
+      );
+      //  alive false on the selected card
+      //  image red
+      cards[indexCard]
+        .querySelectorAll("img")
+        .forEach((element) => element.classList.add("card-killed"));
+      victim.cards[indexCard].alive = false;
+
+      updateGame(game);
       updateEndGame(game);
-    });
+    }
   } else {
     //computer is killed
+    // TO DO : NOT CHOOSE ALWAYS THE FIRST CARD FOR COMPUTER
+    //kill the selected card
+
+    let indexCard = victim.cards.indexOf(
+      victim.cards.filter((card) => card.alive)[0]
+    );
+    //  alive false on the selected card
+    //  image red
+    cards[indexCard]
+      .querySelectorAll("img")
+      .forEach((element) => element.classList.add("card-killed"));
+    victim.cards[indexCard].alive = false;
+
+    game.log += "\ninstruction - Computer card is killed 😏 ";
+
+    updateEndGame(game);
   }
+  updateInstruction(game);
+  updateGame(game);
   updateEndGame(game);
 }
 
