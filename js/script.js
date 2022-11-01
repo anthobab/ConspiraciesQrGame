@@ -54,7 +54,7 @@ function startGame() {
   }
 
   // choose characters for this game session
-  let game = new Game(
+  const game = new Game(
     new Duchess(),
     new Assassin(),
     new Pirate(),
@@ -160,6 +160,7 @@ function startGame() {
             .querySelector(".choices-list[name='" + listName + "']:checked")
             .getAttribute("value")
         );
+        previousActionLog.innerText = "";
         break;
       case "counter":
         listName = "counterChoice";
@@ -188,7 +189,7 @@ function startGame() {
       indexChosenValue,
       activePlayer,
       opponentPlayer,
-      0,
+      game.log,
       game.deck,
       game.actionType
     );
@@ -197,11 +198,11 @@ function startGame() {
       "actionLogStart",
       "actionLogEnd"
     ); ///game.log;
-    // previousActionLog.innerText +=
-    //   "\n" +
-    //   previousActionLogText
-    //     .replace("Player", activePlayer.name)
-    //     .replace("opponent", opponentPlayer.name);
+    previousActionLog.innerText +=
+      "\n" +
+      previousActionLogText
+        .replace("Player", activePlayer.name)
+        .replace("opponent", opponentPlayer.name);
 
     // Update the instructions
     switch (game.actionType) {
@@ -261,13 +262,14 @@ function startGame() {
       killACard(activePlayer, opponentPlayer, game);
 
       activePlayer.cardToKill -= 1;
+      hiddeAll = true;
     }
 
     activePlayer = game.activePlayer;
     opponentPlayer = game.opponentPlayer;
     if (game.winner) {
+      previousActionLogText = "";
       endGame(game);
-      console.log();
     } else {
       updateGame(game, hiddeAll);
     }
@@ -277,7 +279,14 @@ function startGame() {
       activePlayer.name === "computer" && game.actionType === "action";
     if (computerTurn) {
       updateRadioBtn(game, true);
-      game.next();
+      // game.next(
+      //   indexChosenValue,
+      //   activePlayer,
+      //   opponentPlayer,
+      //   0,
+      //   game.deck,
+      //   game.actionType
+      // );;
       //   // if a computer
     }
     //  else{
@@ -592,7 +601,7 @@ function killACard(victim, killer, game) {
     updateEndGame(game);
   }
   updateInstruction(game);
-  updateGame(game, hiddeAll);
+  // updateGame(game, true);
   updateEndGame(game);
 }
 
@@ -646,15 +655,16 @@ function endGame(game) {
   nextButton.classList.add("hidden");
 
   if (game.winner === "player") {
-    instruction.innerText =
-      "Congratulation You Win ! \n Wanna play again with me ?";
+    game.log +=
+      "instruction - Congratulations ! You Win ! \n Wanna play again with me ?";
     console.log(
-      "Congratulation You Win ! \n Wanna play again with me ? : click Restart "
+      "instruction - Congratulations ! You Win ! \n Wanna play again with me ? : click Restart "
     );
   } else {
-    console.log("You Lose !!!  Try Again ... : ");
-    instruction.innerText = "You Lose !!!  Try Again ... : click Restart";
+    console.log("instruction - You Lose !!!  Try Again ... : ");
+    game.log += "instruction - You Lose !!!  Try Again ... : click Restart";
   }
+  updateImg(game);
 }
 
 function lastStrLedBySpecialStr(log, laststr, previousStr) {

@@ -33,6 +33,7 @@ export class Game {
         text: "Income : Take 1 coin from the Treasure.",
         action: (activePlayer, defenderPlayers, log, deck, actionType) => {
           activePlayer.treasure += 1;
+          return "animate_treasure_player_1 actionLogStart Player chooses income action and get 1 coin from the treasure. actionLogEnd";
         },
         condition: (activePlayer, defenderPlayers, log, deck, actionType) => {
           return true;
@@ -45,6 +46,7 @@ export class Game {
         action: (activePlayer, defenderPlayers, log, deck, actionType) => {
           activePlayer.treasure -= 7;
           defenderPlayers.cardToKill += 1;
+          return "animate_player_treasure_7 actionLogStart Player Assassinate one opponent's character spendding 7 coins. actionLogEnd";
         },
         condition: (activePlayer, defenderPlayers, log, deck, actionType) => {
           return activePlayer.treasure >= 7;
@@ -154,8 +156,17 @@ export class Game {
         let isCounterPossible = false;
         if (choice >= 2) {
           //means its a character then bluffMode Enable
+          this.log +=
+            "\n" +
+            this.choices[choice].action(
+              JSON.parse(JSON.stringify(activePlayer)),
+              JSON.parse(JSON.stringify(defenderPlayers)),
+              log,
+              JSON.parse(JSON.stringify(deck)),
+              actionType
+            );
           this.actionType = "bluff";
-          return;
+          return; /////////                    LOGTODO
           //DRY2 counter
           //2nd step : check if any counter is possible and GOTO counter MODE or resolve action
 
@@ -321,16 +332,18 @@ export class Game {
         if (!isLiar) {
           //  here bluf not requested or is not a Liar then Do the action
           /// DO the ACTION DRY1start !!!!!!!! CUT IN 2 PART
+          // Already log so just write the non bluff in the instruction
           this.log +=
             "\n" +
-            this.choices[this.actionChoiceVal].action(
-              activePlayer,
-              defenderPlayers,
-              log,
-              deck,
-              "action"
-            );
+            "\nactionLogStart  opponent believe the Player. actionLogEnd";
         }
+        this.choices[this.actionChoiceVal].action(
+          activePlayer,
+          defenderPlayers,
+          log,
+          deck,
+          "action"
+        );
         //reset the choiceValue in this game
         this.bluffChoiceVal = 0;
         this.counterChoiceVal = 0;
