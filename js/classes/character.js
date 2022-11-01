@@ -36,7 +36,7 @@ export class Duchess extends Collectors {
   }
   action(activePlayer, defenderPlayers, log, deck, actionType) {
     activePlayer.treasure += 3;
-    return "treasure_player_3";
+    return "animate_treasure_player_3 actionLogStart Player uses the Duchess to take 3 coins from the treasure. actionLogEnd";
   }
   condition(activePlayer, defenderPlayers, log, deck, actionType) {
     return true;
@@ -62,6 +62,7 @@ export class Assassin extends Assassins {
   action(activePlayer, defenderPlayers, log, deck, actionType) {
     activePlayer.treasure -= 3;
     defenderPlayers.cardToKill = true;
+    return "animate_player_treasure_3 actionLogStart Player uses the Assassin to kill one opponent's character. actionLogEnd";
   }
   condition(activePlayer, defenderPlayers, log, deck, actionType) {
     if (activePlayer.treasure >= 3) {
@@ -87,13 +88,9 @@ export class Pirate extends Robbers {
     this.rule.fr = "Pirate : Vole 2 pièces à un adversaire";
   }
   action(activePlayer, defenderPlayers, log, deck, actionType) {
-    if (defenderPlayers.treasure >= 2) {
-      defenderPlayers.treasure -= 2;
-      activePlayer.treasure += 2;
-      return "opponent_player_2";
-    } else {
-      return false;
-    }
+    defenderPlayers.treasure -= 2;
+    activePlayer.treasure += 2;
+    return "animate_oponent_player_2 actionLogStart Player uses the Pirate to steal 2 coins from the opponent. actionLogEnd";
   }
   condition(activePlayer, defenderPlayers, log, deck, actionType) {
     return defenderPlayers.treasure >= 2;
@@ -158,7 +155,7 @@ export class Spy extends Negociators {
     this.rule.fr = "l'Espion : Changer de cartes";
   }
   action(activePlayer, defenderPlayers, log, deck, actionType) {
-    // TODO depends of the number of alive cards
+    // TODO depends of the number of alive cards and the possibility to choose 2 cards from the four.
     console.log(activePlayer.cards);
     activePlayer.cards = activePlayer.cards.map((card) => {
       if (card.alive) {
@@ -168,6 +165,7 @@ export class Spy extends Negociators {
       return card;
     });
     console.log(activePlayer.cards);
+    return "actionLogStart Player uses the Spy to change 2 cards from the deck. actionLogEnd";
   }
   condition(activePlayer, defenderPlayers, log, deck, actionType) {
     return true;

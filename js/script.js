@@ -21,6 +21,7 @@ const logSection = document.getElementById("log");
 const choicesSection = document.getElementById("choices");
 const nextButton = document.getElementById("nextButton");
 const instruction = document.getElementById("Instruction");
+const previousActionLog = document.getElementById("previousActionLog");
 let firstStart = true;
 // const test = new Deck(
 //   new Duchess(),
@@ -63,7 +64,8 @@ function startGame() {
 
   let activePlayer = game.activePlayer;
   let opponentPlayer = game.opponentPlayer;
-
+  let hiddeAll = false;
+  let previousActionLogText = "";
   // console.log(game.deck.cardsList);
   // console.log(game.player);
   // console.log(game.computer);
@@ -141,9 +143,11 @@ function startGame() {
   //
   // NEXT BUTTON : Event Listener next action
   //
-  game.log += "\ninstruction - It's your turn to play ! Choose an action";
+  game.log += "\ninstruction - It's your turn to play ! Choose an action"; // action à la création du jeu
   const nextELid = nextButton.addEventListener("click", (event) => {
     let indexChosenValue;
+    hiddeAll = false;
+    previousActionLogText = "";
 
     //select the good value
     let listName = "";
@@ -188,12 +192,64 @@ function startGame() {
       game.deck,
       game.actionType
     );
+    previousActionLogText = lastStrBetween(
+      game.log,
+      "actionLogStart",
+      "actionLogEnd"
+    ); ///game.log;
+    // previousActionLog.innerText +=
+    //   "\n" +
+    //   previousActionLogText
+    //     .replace("Player", activePlayer.name)
+    //     .replace("opponent", opponentPlayer.name);
 
-    if (game.activePlayer === "player") {
-      game.log += "\ninstruction - It's your turn to play ! Choose an action";
-    } else {
-      game.log += "\ninstruction - It's computer turn to play !";
+    // Update the instructions
+    switch (game.actionType) {
+      //actionType = 'counter' 'action' 'bluff' 'info'
+      case "action":
+        if (game.activePlayer.name === "player") {
+          game.log +=
+            "\ninstruction - It's your turn to play ! Choose an action";
+        } else {
+          game.log += "\ninstruction - It's computer turn to play !";
+          hiddeAll = true;
+        }
+        break;
+      case "counter":
+        if (game.activePlayer.name === "player") {
+          game.log +=
+            "\ninstruction - Your opponent uses a character's power, could you block the action ?";
+        } else {
+          game.log += "\ninstruction - Does computer block your action ?";
+          hiddeAll = true;
+        }
+        break;
+      case "bluff":
+        if (game.activePlayer.name === "player") {
+          game.log +=
+            "\ninstruction - Does computer believe that you got this character ?";
+          hiddeAll = true;
+        } else {
+          game.log +=
+            "\ninstruction - Your opponent uses a character's power : ";
+        }
+        break;
+      case "bluff-counter":
+        if (game.activePlayer.name === "player") {
+          game.log +=
+            "\ninstruction - Your opponent uses a character's power : ";
+        } else {
+          game.log +=
+            "\ninstruction - Does computer believe that you got this character ?";
+          hiddeAll = true;
+        }
+        break;
+
+      default:
+        console.log("ERR41 in script.js");
+        break;
     }
+
     //mise à jour des morts et des cartes
     //si perso mort, choisir lequel
     while (opponentPlayer.cardToKill > 0) {
@@ -213,7 +269,7 @@ function startGame() {
       endGame(game);
       console.log();
     } else {
-      updateGame(game);
+      updateGame(game, hiddeAll);
     }
 
     /// computer turn
@@ -244,9 +300,9 @@ function updateInstruction(game) {
   console.log(instruction.innerText);
 }
 
-function updateGame(game) {
+function updateGame(game, hideAll) {
   // update active Radio Btn
-  updateRadioBtn(game);
+  updateRadioBtn(game, hideAll);
 
   // udate choice radio
 
@@ -357,6 +413,7 @@ function updateRadioChoice(game, hideAll) {
       break;
     case "counter":
       listName = allListName[1];
+      game.log += "\ninstruction - Counter ! Choose an action";
       break;
     case "bluff":
     case "bluff-counter":
@@ -488,7 +545,7 @@ function killACard(victim, killer, game) {
             .forEach((element) => element.classList.add("card-killed"));
           victim.cards[indexCard].alive = false;
 
-          updateGame(game);
+          updateGame(game, hiddeAll);
           // remove the listener once a card is selected
           cardsContainer.removeEventListener("click", selectACard);
         }
@@ -512,7 +569,7 @@ function killACard(victim, killer, game) {
         .forEach((element) => element.classList.add("card-killed"));
       victim.cards[indexCard].alive = false;
 
-      updateGame(game);
+      updateGame(game, hiddeAll);
       updateEndGame(game);
     }
   } else {
@@ -535,7 +592,7 @@ function killACard(victim, killer, game) {
     updateEndGame(game);
   }
   updateInstruction(game);
-  updateGame(game);
+  updateGame(game, hiddeAll);
   updateEndGame(game);
 }
 
@@ -598,4 +655,30 @@ function endGame(game) {
     console.log("You Lose !!!  Try Again ... : ");
     instruction.innerText = "You Lose !!!  Try Again ... : click Restart";
   }
+}
+
+function lastStrLedBySpecialStr(log, laststr, previousStr) {
+  let starttext = log.lastIndexOf(laststr);
+  return log.slice(starttext - previousStr.length, starttext) === previousStr;
+}
+// console.log(lastStrFollowedBySpecialStr(log, " action : ", "invoke Duchess"));
+
+function lastStrFollowedBySpecialStr(log, laststr, nextStr) {
+  let starttext = log.lastIndexOf(laststr);
+
+  return (
+    log.slice(
+      starttext + laststr.length,
+      starttext + laststr.length + nextStr.length
+    ) === nextStr
+  );
+}
+
+function lastStrBetween(str, startStr, lastStr) {
+  let starttext = str.lastIndexOf(startStr) + startStr.length;
+  let endOfLine = str.lastIndexOf(lastStr);
+  if (endOfLine < starttext) {
+    endOfLine = str.length;
+  }
+  return str.slice(starttext, endOfLine);
 }

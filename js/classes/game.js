@@ -105,7 +105,7 @@ export class Game {
       this.deck.cardsList.splice(1, 1)[0]
     );
     this.activePlayer = this.player;
-    this.log += "it's player " + this.activePlayer.name + " turn...";
+    //this.log += "it's player " + this.activePlayer.name + " turn...";
     this.computer = new Computer(
       "computer",
       this.deck.cardsList.splice(0, 1)[0],
@@ -180,13 +180,15 @@ export class Game {
           // 3rd step : do the action, reset the choiceValue in this game,
 
           /// DO the ACTION DRY1start
-          this.choices[choice].action(
-            activePlayer,
-            defenderPlayers,
-            log,
-            deck,
-            actionType
-          );
+          this.log +=
+            "\n" +
+            this.choices[choice].action(
+              activePlayer,
+              defenderPlayers,
+              log,
+              deck,
+              actionType
+            );
           //reset the choiceValue in this game
           this.bluffChoiceVal = 0;
           this.counterChoiceVal = 0;
@@ -217,13 +219,15 @@ export class Game {
         // 1rst step check if let it go... selected, Do Action, and GOTO next turn, type action and toggle active player and defenderPlayers;
         if (!choice) {
           /// DO the ACTION DRY1start
-          this.choices[this.actionChoiceVal].action(
-            activePlayer,
-            defenderPlayers,
-            log,
-            deck,
-            "action"
-          );
+          this.log +=
+            "\n" +
+            this.choices[this.actionChoiceVal].action(
+              activePlayer,
+              defenderPlayers,
+              log,
+              deck,
+              "action"
+            );
           //reset the choiceValue in this game
           this.bluffChoiceVal = 0;
           this.counterChoiceVal = 0;
@@ -317,13 +321,15 @@ export class Game {
         if (!isLiar) {
           //  here bluf not requested or is not a Liar then Do the action
           /// DO the ACTION DRY1start !!!!!!!! CUT IN 2 PART
-          this.choices[this.actionChoiceVal].action(
-            activePlayer,
-            defenderPlayers,
-            log,
-            deck,
-            "action"
-          );
+          this.log +=
+            "\n" +
+            this.choices[this.actionChoiceVal].action(
+              activePlayer,
+              defenderPlayers,
+              log,
+              deck,
+              "action"
+            );
         }
         //reset the choiceValue in this game
         this.bluffChoiceVal = 0;
@@ -388,13 +394,15 @@ export class Game {
         }
         // if is a liar
         if (isLiar) {
-          this.choices[this.actionChoiceVal].action(
-            activePlayer,
-            defenderPlayers,
-            log,
-            deck,
-            "action"
-          );
+          this.log +=
+            "\n" +
+            this.choices[this.actionChoiceVal].action(
+              activePlayer,
+              defenderPlayers,
+              log,
+              deck,
+              "action"
+            );
         } else {
           //not a liar or counterbluff not requested, then action is counter do Nothing
           // LOG UPDATE ?
